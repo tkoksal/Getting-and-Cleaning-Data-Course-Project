@@ -1,6 +1,7 @@
-# Codebook for Human Activity Recognition Using Smartphones
-Tamer Köksal  
-December 19, 2014  
+Codebook for Human Activity Recognition Using Smartphones
+==============================================
+
+
 | VARIABLE NAME  | VARIABLE DESCRIPTION  | VALUES OR EXPLANATION  |
 |---|---|---|
 | subject   | Subject Identifier   | Integer ranging 1 : 30   |
