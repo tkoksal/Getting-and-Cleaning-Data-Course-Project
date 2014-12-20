@@ -46,9 +46,9 @@ To begin with, [community TA David Hood's diagram][2] on how the data should be 
 [id]: diagram.png "Data Structure"
 [2]: https://class.coursera.org/getdata-016/forum/thread?thread_id=50#comment-333
 
-An R-script, `run_analysis.R` was created to do the above cited 5-step data manupulation process. What follows is a explanation of this R-script.   
+An R-script, `run_analysis.R` was created to do the above cited 5-step data manupulation process. What follows is an explanation of this R-script.   
 
-### 1.Step: Merge the training and the test sets to create one data set.
+### Step-1: Merge the training and the test sets to create one data set.
 
 The training and test datasets are stored as text files `X_train.txt` and `X_test.txt`, respectively.
 
@@ -108,3 +108,86 @@ names(activityTest)[1] <- "activity" # rename the first (and the only) variable 
 testData <- cbind(subjectsTest, activityTest, testData)
 ```
 
+Finally we are ready to merge the training and test datasets. Before we proceed, we need to add an additonal variable to both datasets, to keep track from which dataset the observations come from. This variable is crucial at the analysis stage of experimental design studies. Here is the code that performs that:
+
+```
+trainingData$trainortest <- "train" # recycles across all observations
+testData$trainortest <- "test"      # recycles across all observations
+```
+
+Finally, merge the training and test datasets and assign it as `Data`:
+
+> `Data <- rbind(trainingData, testData)`
+
+***
+
+### Step-2: Extract only the measurements on the mean and standard deviation for each measurement. 
+
+Create a new subset data `subData`, which keeps only the variables on the mean and standart deviation:
+
+```
+subData <- Data[, grepl("subject", names(Data)) |
+                  grepl("activity", names(Data)) |
+                  grepl("trainortest", names(Data)) | 
+                  grepl("mean", names(Data)) | 
+                  grepl("std", names(Data))]
+```
+
+Next, remove variables that are unrelated with mean measures:
+
+> `subData <- select(subData, -contains("meanFreq")) # use dplyr package`
+
+Some variable names in the dataset contain improper characters. So we need to properly rename these variable names and correct some typos:
+
+```
+names(subData) <- gsub("-mean()-", "_mean_", names(subData), fixed = TRUE)
+names(subData) <- gsub("-mean()", "_mean", names(subData), fixed = TRUE)
+names(subData) <- gsub("-std()-", "_std_", names(subData), fixed = TRUE)
+names(subData) <- gsub("-std()", "_std", names(subData), fixed = TRUE)
+names(subData) <- gsub("BodyBody", "Body", names(subData), fixed = TRUE)
+```
+
+The `trainortest` variable, which is of character type, is converted into a factor variable:
+
+> `subData$trainortest <- factor(subData$trainortest, levels = c("train", "test"))`
+
+***
+
+### Step-3: Use descriptive activity names to name the activities in the data set 
+
+Activity labels are stored in the text file `activity_labels.txt`. Read this file into a data frame and assign it as `activityLabels`.
+
+> `activityLabels <- read.table("./UCI HAR Dataset/activity_labels.txt")`
+
+Attach activity labels to the corresponding activity types in the `subData`:
+
+> `subData$activity <- factor(subData$activity, levels = 1:6, labels = activityLabels[, 2])`
+
+Reorder variables:
+
+> `subData <- select(subData, subject, activity, trainortest, 3:68)`
+
+### Step-4: Appropriately label the data set with descriptive variable names. 
+
+This was already done in step 2.
+
+### Step-5: From the data set in step 4, creates a second, independent tidy data set with the average of each variable for each activity and each subject.
+
+Using the `dplyr` package we first group `subData` with respect to `subject`
+and `activity`, then compute the average of the remaining numeric variables, and assign the result to `tidydata`. Here is the code that do this:
+
+```
+tidydata <- subData %>%
+    group_by(subject, activity) %>%
+    summarise_each(funs(mean))
+```
+
+Add labels to trainortest variable which was distorted during transformation:
+
+> `tidydata$trainortest <- factor(tidydata$trainortest, levels = 1:2, labels = c("train", "test"))`
+
+The resulting dataset `tidydata` is tidy in terms of the fact that each column represents one and exactly one variable, and each row corresponds to a single observation.
+
+Finally save/write the the tidy data as a .txt file to the working directory
+
+> `write.table(tidydata, file = "tidydata.txt", row.names = FALSE)`

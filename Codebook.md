@@ -4,7 +4,7 @@ Codebook for Human Activity Recognition Using Smartphones
 
 ***
 
-In preparing this codebook, [*Human Activity Recognition Using Smartphones*][1] study website was used as a reference.
+In preparing this codebook, *Human Activity Recognition Using Smartphones*[^1] study website was used as a reference.
 
 ***
 
@@ -80,7 +80,9 @@ In preparing this codebook, [*Human Activity Recognition Using Smartphones*][1] 
 | 68 | fBodyGyroJerkMag_mean  | Frequency domain, mean magnitude of body motion angular jerk  | Numeric  |
 | 69 | fBodyGyroJerkMag_std  | Frequency domain, standart deviation of the magnitude of body motion angular jerk  | Numeric  |  
 
+***
+
 *Notes:*
 
-[1]: http://archive.ics.uci.edu/ml/datasets/Human+Activity+Recognition+Using+Smartphones   
+[^1]: http://archive.ics.uci.edu/ml/datasets/Human+Activity+Recognition+Using+Smartphones   
 [^2]: Fast Fourier Transform (FFT) applied to the corresponding time domain variable
